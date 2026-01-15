@@ -1,6 +1,6 @@
+import { Optic } from '@matheuspuel/optic'
 import { Option } from 'effect'
 import { describe, expect, it } from 'vitest'
-import { Optic } from '.'
 
 describe('Optic', () => {
   it('id', () => {
