@@ -93,6 +93,11 @@ describe('Optic', () => {
     const store = makeStore(initialState)
 
     {
+      const optic = RootState.find(_ => _.id === 99)
+      store.update(optic.update(_ => ({ ..._, a: 88 })))
+      expect(store.get()).toStrictEqual(initialState)
+    }
+    {
       const optic = RootState.find(_ => _.id === 2)._.a
       store.update(optic.update(_ => _ + 1))
       expect(optic.getOption(store.get())).toStrictEqual<
@@ -125,6 +130,81 @@ describe('Optic', () => {
         initialState[2],
       ])
     }
+  })
+
+  describe('class', () => {
+    it('fields as constructor parameter', () => {
+      class User {
+        name: string
+        age: number
+        constructor(fields: { name: string; age: number }) {
+          if (fields.age < 0) throw new Error('Age cannot be negative')
+          this.name = fields.name
+          this.age = fields.age
+        }
+      }
+
+      type RootState = { user: User }
+      const RootState = Optic.id<RootState>()
+      const user = new User({ name: 'Alice', age: 30 })
+      const initialState: RootState = { user }
+      const store = makeStore(initialState)
+      const optic = RootState._.user.class(User)
+
+      expect(store.get().user).toStrictEqual(user)
+      expect(store.get().user).toBeInstanceOf(User)
+      expect(store.get().user).toEqual({ name: user.name, age: user.age })
+      expect(optic.get(store.get()).name).toStrictEqual(user.name)
+      expect(optic._.age.get(store.get())).toStrictEqual(user.age)
+      store.update(optic.update(_ => ({ name: 'Bob', age: _.age })))
+      expect(store.get().user).toEqual({ name: 'Bob', age: 30 })
+      expect(store.get().user).toBeInstanceOf(User)
+      expect(store.get().user).not.toBe(user)
+      store.update(optic.update(_ => ({ ..._, age: _.age + 1 })))
+      expect(store.get().user).toEqual({ name: 'Bob', age: 31 })
+      store.update(optic._.age.update(_ => _ + 1))
+      expect(store.get().user).toEqual({ name: 'Bob', age: 32 })
+      expect(store.get().user).toBeInstanceOf(User)
+      expect(() => optic._.age.update(() => -1)(store.get())).toThrow(
+        'Age cannot be negative',
+      )
+    })
+
+    it('independent constructor parameters', () => {
+      class User {
+        constructor(
+          public name: string,
+          public age: number,
+        ) {
+          if (age < 0) throw new Error('Age cannot be negative')
+        }
+      }
+
+      type RootState = { user: User }
+      const RootState = Optic.id<RootState>()
+      const user = new User('Alice', 30)
+      const initialState: RootState = { user }
+      const store = makeStore(initialState)
+      const optic = RootState._.user.class(User, _ => [_.name, _.age] as const)
+
+      expect(store.get().user).toStrictEqual(user)
+      expect(store.get().user).toBeInstanceOf(User)
+      expect(store.get().user).toEqual({ name: user.name, age: user.age })
+      expect(optic.get(store.get()).name).toStrictEqual(user.name)
+      expect(optic._.age.get(store.get())).toStrictEqual(user.age)
+      store.update(optic.update(_ => ({ name: 'Bob', age: _.age })))
+      expect(store.get().user).toEqual({ name: 'Bob', age: 30 })
+      expect(store.get().user).toBeInstanceOf(User)
+      expect(store.get().user).not.toBe(user)
+      store.update(optic.update(_ => ({ ..._, age: _.age + 1 })))
+      expect(store.get().user).toEqual({ name: 'Bob', age: 31 })
+      store.update(optic._.age.update(_ => _ + 1))
+      expect(store.get().user).toEqual({ name: 'Bob', age: 32 })
+      expect(store.get().user).toBeInstanceOf(User)
+      expect(() => optic._.age.update(() => -1)(store.get())).toThrow(
+        'Age cannot be negative',
+      )
+    })
   })
 })
 

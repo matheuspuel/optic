@@ -1,6 +1,6 @@
 {
   "name": "@matheuspuel/optic",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "files": [
     "/dist",
@@ -14,30 +14,34 @@
     }
   },
   "scripts": {
-    "build": "tsc -b tsconfig.build.json",
-    "lint": "eslint . --max-warnings 0 --config .eslintrc.production.js",
-    "lint:fix": "eslint . --fix --config .eslintrc.production.js",
+    "build": "tsc --project tsconfig.build.json",
+    "build:watch": "tsc --project tsconfig.build.json --watch",
+    "lint": "eslint . --max-warnings 0 --config .eslintrc.production.cjs",
+    "lint:fix": "eslint . --fix --config .eslintrc.production.cjs",
     "typecheck": "tsc",
-    "test": "vitest"
+    "test": "vitest",
+    "check": "pnpm build && pnpm typecheck && pnpm lint && pnpm test --run",
+    "upload": "pnpm check && pnpm publish"
   },
   "dependencies": {
-    "effect": "^3.18.1"
+    "effect": "^3.19.16"
   },
   "devDependencies": {
-    "@effect/language-service": "^0.41.1",
-    "@effect/vitest": "^0.26.0",
+    "@effect/language-service": "^0.73.1",
+    "@effect/vitest": "^0.27.0",
     "@matheuspuel/optic": "file:.",
     "@types/node": "^25.0.8",
-    "@typescript-eslint/parser": "^8.29.1",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@typescript-eslint/eslint-plugin": "^8.55.0",
+    "@typescript-eslint/parser": "^8.55.0",
+    "@vitest/coverage-v8": "^4.0.18",
     "cross-env": "^7.0.3",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
-    "prettier": "^3.6.2",
-    "tsx": "^4.20.6",
+    "prettier": "^3.8.1",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vite": "^6.3.5",
-    "vitest": "^3.2.4"
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
   }
 }

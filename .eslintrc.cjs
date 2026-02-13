@@ -17,18 +17,30 @@ module.exports = {
     '/dist/*',
     '/experiments/*',
     '/node_modules/*',
-    '.eslintrc.js',
-    '.eslintrc.production.js',
+    '.eslintrc.cjs',
+    '.eslintrc.production.cjs',
   ],
   rules: {
     // already checked by typescript
     '@typescript-eslint/no-redeclare': 'off',
-    // warn instead of error
-    '@typescript-eslint/no-unused-vars': 'warn',
     // allow namespace declaration for types
     '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }],
+    // allow explicit unused variables
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        destructuredArrayIgnorePattern: '^_',
+        ignoreRestSiblings: true,
+      },
+    ],
     // warn instead of error to prevent covering more specific errors
-    '@typescript-eslint/no-unsafe-return': 'warn',
     '@typescript-eslint/no-unsafe-call': 'warn',
+    // allow non null assertion to overcome typing limitations
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    // allow use of "any" to overcome typing limitations
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-unsafe-return': 'off',
   },
 }
