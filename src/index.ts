@@ -96,7 +96,7 @@ type OpticBase<Focus, Whole, Optional extends boolean = false> = {
       /** Get the focused value (only for non-optional optics). */
       get: (s: Whole) => Focus
     }
-  : // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  : // oxlint-disable-next-line typescript/no-empty-object-type
     {})
 
 /**
@@ -144,7 +144,7 @@ const make: {
      * The returned function should be pure and preserve the surrounding structure.
      */
     update: (f: (a: Focus) => Focus) => (s: Whole) => Whole
-  }): Optic<Focus, Whole, false>
+  }): Optic<Focus, Whole>
   <Focus, Whole>(args: {
     get?: never
     /** How to get the focused value as an Option from the whole structure */
@@ -173,7 +173,6 @@ const make: {
   type Optional = typeof args extends { get: (s: Whole) => Focus }
     ? false
     : true
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   const compose = <Focus2, Optional2 extends boolean = false>(
     other: Optic<Focus2, Focus, Optional2>,
   ): Optic<Focus2, Whole, Optional2 extends false ? Optional : true> =>
@@ -225,7 +224,8 @@ const make: {
           getOption: _ => Array.findFirst(_ as Item[], predicate),
           update: f => _ =>
             Option.match(Array.findFirstIndex(_ as Item[], predicate), {
-              onSome: index => Array.modify(_ as Item[], index, f),
+              onSome: index =>
+                Option.getOrElse(Array.modify(_ as Item[], index, f), () => _),
               onNone: () => _,
             }) as Focus,
         }),
@@ -256,7 +256,7 @@ export const Optic = {
    * const root = Optic.id<RootState>()
    * const userNameOptic = root._.user._.name
    */
-  id: <Whole>(): Optic<Whole, Whole, false> =>
+  id: <Whole>(): Optic<Whole, Whole> =>
     make({ get: s => s, update: f => s => f(s) }),
 }
 
